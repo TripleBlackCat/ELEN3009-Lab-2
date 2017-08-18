@@ -122,39 +122,87 @@ TEST_CASE("Word which is not queryable cannot be found") {
    CHECK_FALSE(testline.contains(too_small_to_query));
 }
 
-//// ----------------------------------------------------
-//
-//TEST_CASE("Word cannot be found in empty Paragraph") {
-//}
-//
-//TEST_CASE("Word not present in Paragraph cannot be found") {
-//}
-//
-//TEST_CASE("Line number of a Word appearing once in Paragraph is returned") {
-//}
-//
-//TEST_CASE("Line numbers of a Word appearing in multiple Lines of a Paragraph is returned") {
-//}
-//
-//TEST_CASE("Line numbers returned account for an empty Line") {
-//// If the first line of the paragraph is empty, and the word being searched for
-//// is on the second line, the vector returned should be: [2]
-//}
-//
-//// ----------------------------------------------------
-//
-//// Integration test - both Paragraph and File Reader are tested together
-//TEST_CASE("File can be read into Paragraph and successfully searched") {
-//	// make sure that alice.txt is in the right location for this to work!
-//	FileReader filereader("alice.txt");
-//	Paragraph paragraph;
-//	filereader.readFileInto(paragraph);
-//	Word search_word("Daddy");
-//	vector<int> line_numbers;
-//	CHECK(paragraph.contains(search_word, line_numbers));
-//	vector<int> expected_line_numbers;
-//	expected_line_numbers.push_back(1);
-//	expected_line_numbers.push_back(4);
-//	expected_line_numbers.push_back(6);
-//	CHECK(expected_line_numbers == line_numbers);
-//}
+// ----------------------------------------------------
+
+TEST_CASE("Word cannot be found in empty Paragraph") {
+	Paragraph paragraph;
+	vector<int> line_numbers;
+	Word searchWord("apple");
+	CHECK_FALSE(paragraph.contains(searchWord, line_numbers));
+
+}
+
+TEST_CASE("Word not present in Paragraph cannot be found") {
+	Line testline1("October arrived, spreading a damp chill over the grounds and into the castle. Madam Pomfrey, the nurse, was kept busy by a sudden spate of colds among the staff and students.");
+	Line testline2("Her Pepperup potion worked instantly, though it left the drinker smoking at the ears for several hours afterward.");
+	Paragraph paragraph;
+	paragraph.addLine(testline1);
+	paragraph.addLine(testline2);
+	Word searchWord("peanut");
+	vector <int> line_numbers;
+	CHECK_FALSE(paragraph.contains(searchWord, line_numbers));
+
+}
+
+TEST_CASE("Line number of a Word appearing once in Paragraph is returned") {
+	Line testline1("You have the right to remain silent");
+	Line testline2("Anything you say can and will be used against you in a court of law.");
+	Line testline3("You have the right to an attorney");
+	Paragraph paragraph;
+	paragraph.addLine(testline1);
+	paragraph.addLine(testline2);
+	paragraph.addLine(testline3);
+	Word searchWord("court");
+	vector <int> line_numbers;
+	CHECK(paragraph.contains(searchWord, line_numbers));
+	CHECK(line_numbers.front() == 2);
+}
+
+TEST_CASE("Line numbers of a Word appearing in multiple Lines of a Paragraph is returned") {
+	Line testline1("You have the right to remain silent");
+	Line testline2("Anything you say can and will be used against you in a court of law.");
+	Line testline3("You have the right to an attorney");
+	Line testline4("If you cannot afford an attorney, one will be provided for you.");
+	Paragraph paragraph;
+	paragraph.addLine(testline1);
+	paragraph.addLine(testline2);
+	paragraph.addLine(testline3);
+	paragraph.addLine(testline4);
+	Word searchWord("attorney");
+	vector <int> line_numbers;
+	CHECK(paragraph.contains(searchWord, line_numbers));
+	CHECK(line_numbers.at(0) == 3);
+	CHECK(line_numbers.at(1) == 4);	
+}
+
+TEST_CASE("Line numbers returned account for an empty Line") {
+// If the first line of the paragraph is empty, and the word being searched for
+// is on the second line, the vector returned should be: [2]
+	Line testline1("");
+	Line testline2("Anything you say can and will be used against you in a court of law.");
+	Paragraph paragraph;
+	paragraph.addLine(testline1);
+	paragraph.addLine(testline2);
+	Word searchWord("court");
+	vector <int> line_numbers;
+	CHECK(paragraph.contains(searchWord, line_numbers));
+	CHECK(line_numbers.front() == 2);
+}
+
+// ----------------------------------------------------
+
+// Integration test - both Paragraph and File Reader are tested together
+TEST_CASE("File can be read into Paragraph and successfully searched") {
+	// make sure that alice.txt is in the right location for this to work!
+	FileReader filereader("alice.txt");
+	Paragraph paragraph;
+	filereader.readFileInto(paragraph);
+	Word search_word("Daddy");
+	vector<int> line_numbers;
+	CHECK(paragraph.contains(search_word, line_numbers));
+	vector<int> expected_line_numbers;
+	expected_line_numbers.push_back(1);
+	expected_line_numbers.push_back(4);
+	expected_line_numbers.push_back(6);
+	CHECK(expected_line_numbers == line_numbers);
+}
